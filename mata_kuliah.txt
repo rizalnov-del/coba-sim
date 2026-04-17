@@ -3,3 +3,6 @@ sim
 kalkulus
 basadat
 alppro
+ALjabar linier
+Evd
+Komstat
