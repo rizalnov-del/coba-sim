@@ -1,3 +1,0 @@
-aljabar
-derrivatif
-integral

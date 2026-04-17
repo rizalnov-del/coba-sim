@@ -6,3 +6,8 @@ alppro
 ALjabar linier
 Evd
 Komstat
+
+kalkulus:
+aljabar
+derrivatif
+integral
