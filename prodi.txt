@@ -1,4 +1,5 @@
 Statistika
 matematika
 fisika
-kimia
+Kimia
+Biologi
