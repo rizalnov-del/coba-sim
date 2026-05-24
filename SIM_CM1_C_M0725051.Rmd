@@ -1,0 +1,532 @@
+---
+title: "ANALISIS GENRE FILM DATABASE SAKILA"
+author:
+  - " Nama: Rizal Novawan"
+  - "NIM: M0725051"
+  - "Kelas: C"
+  - "Mata Kuliah: Sistem Informasi Manajemen"
+date: "`r Sys.Date()`"
+
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    number_sections: true
+    theme: spacelab
+    highlight: tango
+---
+<style>
+
+/* BACKGROUND */
+
+body{
+  font-family: "Times New Roman", serif;
+  background: linear-gradient(to right,#f8fbff,#eef4fb);
+  line-height:1.9;
+  color:#2c3e50;
+}
+
+
+/* TITLE */
+
+h1.title{
+  
+  background: linear-gradient(to right,#0d3b66,#1d3557);
+  color:white;
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
+  font-size:42px;
+  font-weight:bold;
+  box-shadow:0px 5px 15px rgba(0,0,0,0.2);
+}
+
+
+/* HEADER */
+
+h1{
+  
+  color:#0d3b66;
+  border-left:8px solid #0d3b66;
+  padding-left:15px;
+  margin-top:50px;
+  font-weight:bold;
+}
+
+
+h2{
+  
+  color:#1d3557;
+  margin-top:35px;
+  font-weight:bold;
+}
+
+
+h3{
+  
+  color:#457b9d;
+}
+
+
+/* TOC */
+
+#TOC{
+  
+  background:white;
+  border-radius:15px;
+  padding:20px;
+  border:1px solid #d6e4f0;
+  box-shadow:0px 3px 10px rgba(0,0,0,0.1);
+}
+
+
+/* CODE CHUNK */
+
+pre{
+  border-radius:12px;
+  border-left:6px solid #457b9d;
+  background:#f4f7fb;
+}
+
+
+/* TABLE */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+
+
+th{
+  background:#0d3b66;
+  color:white;
+  padding:12px;
+  text-align:center;
+}
+
+td{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+  text-align:center;
+}
+
+tr:nth-child(even){
+  background:#f5f7fa;
+}
+tr:hover{
+  background:#dceeff;
+}
+
+
+/* BOX */
+.insight-box{
+  background:white;
+  padding:20px;
+  border-left:8px solid #2a9d8f;
+  border-radius:12px;
+  box-shadow:0px 3px 10px rgba(0,0,0,0.1);
+  margin-top:20px;
+  margin-bottom:20px;
+}
+
+
+/* KESIMPULAN */
+.kesimpulan-box{
+  background:linear-gradient(to right,#fff3e0,#ffe0b2);
+  padding:25px;
+  border-left:8px solid #ef6c00;
+  border-radius:15px;
+  box-shadow:0px 3px 12px rgba(0,0,0,0.15);
+  font-size:17px;
+}
+</style>
+# Pendahuluan
+<div class="insight-box">
+<h2> Analisis Database Sakila </h2>
+<p>
+Analisis ini dilakukan untuk mengeksplorasi hubungan antara genre film, total rental, total revenue, jumlah film, dan durasi film menggunakan SQL serta visualisasi data pada R.
+</p>
+</div>
+## Latar Belakang
+  Pada Analisis ini digunakan database Sakila, yaitu database simulasi rental film yang disediakan oleh MySQL dan berisi berbagai informasi terkait film, customer, transaksi rental, pembayaran, serta kategori film.
+
+  Analisis dilakukan menggunakan bahasa pepmrograman R yang terhubung dengan database MySQL melalui koneksi ODBC. Data yang diperoleh kemudian divisualisasikan menggunakan beberapa jenis grafik untuk membantu memahami pola dan hubungan antar variabel. Fokus utama analisis ini adalah mengetahui apakah genre film yang populer berdasarkan jumlah rental juga selalu menghasilkan revenue yang tinggi.
+
+  Variabel yang digunakan dalam analisis meliputi genre film, total rental, dan total revenue. Selain itu, dilakukan beberapa analisis tambahan seperti revenue per rental untuk melihat efisiensi profit dari masing-masing genre film. Hasil analisis diharapkan dapat memberikan gambaran mengenai perilaku customer terhadap genre film tertentu serta kontribusi genre terhadap pendapatan perusahaan rental film.
+
+  Laporan ini disusun menggunakan R Markdown dengan format HTML serta dilengkapi dengan kustomisasi HTML, CSS, dan persamaan matematis menggunakan LaTeX untuk menghasilkan laporan yang lebih interaktif, informatif, dan menarik secara visual.
+
+## Rumusan masalah
+1. Genre film apa yang memiliki jumlah rental tertinggi pada database Sakila?
+2. Apakah total revenue berhubungan dengan jumlah rental pada setiap genre film?
+3. Apakah jumlah film dalam suatu genre mempengaruhi total rental genre tersebut?
+4. Apakah durasi rata-rata film mempengaruhi tingkat popularitas genre film berdasarkan total rental?
+
+## Tujuan Analisis
+1. Mengetahui genre film dengan jumlah rental tertinggi pada database Sakila.
+2. Menganalisis hubungan antara total revenue dan total rental pada masing-masing genre film.
+3. Mengetahui pengaruh jumlah film dalam suatu genre terhadap total rental genre tersebut.
+4. Menganalisis hubungan antara durasi rata-rata film dengan tingkat popularitas genre berdasarkan total rental.
+5. Menyajikan hasil analisis data dalam bentuk visualisasi interaktif menggunakan bahasa pemrograman R
+
+# Hasil dan Pembahasan
+
+## Deskripsi Data
+  Dataset yang digunakan pada penelitian ini adalah database Sakila yang merupakan database simulasi rental film dari MySQL. Analisis ini bertujuan untuk menilai kemampuan dalam memilih, menganalisis, dan memvisualisasikan data menggunakan SQL dan bahasa pemrograman R. Pada penugasan ini digunakan beberapa insight utama, yaitu:
+1. Hubungan Genre Film dan Total Revenue
+   Dilakukan untuk mengetahui genre film yang menghasilkan revenue terbesar berdasarkan total transaksi pembayaran rental film.
+2. Hubungan Total Rental dan Total Revenue
+   Dilakukan untuk mengetahui apakah peningkatan jumlah rental pada suatu genre diikuti dengan peningkatan revenue yang dihasilkan.
+3. Hubungan Jumlah Film dalam Genre dan Total Rental
+   Dilakukan untuk mengetahui apakah banyaknya film dalam suatu genre mempengaruhi tingkat popularitas genre berdasarkan jumlah rental.
+4. Hubungan Durasi Film dan Total Rental
+   Dilakukan untuk mengetahui apakah rata-rata durasi film berpengaruh terhadap jumlah rental pada masing-masing genre film.
+   
+## Query dan Analisis
+
+Library yang digunakan
+```{r,library,message=FALSE,warning=FALSE}
+library(DBI)
+library(odbc)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+```
+  Package yang digunakan pada analisis ini memiliki fungsi yang berbeda sesuai kebutuhan pengolahan dan visualisasi data. Package `DBI` digunakan untuk membantu koneksi antara R dengan database MySQL. Package `odbc` digunakan untuk menghubungkan database melalui driver ODBC sehingga query SQL dapat dijalankan langsung dari R. Package `dplyr` digunakan untuk manipulasi dan pengolahan data seperti filtering, grouping, dan transformasi data. Package `ggplot2` digunakan untuk membuat visualisasi data seperti barplot, scatterplot, dan pie chart. Selain itu, package `patchwork` digunakan untuk menggabungkan beberapa visualisasi menjadi satu tampilan yang lebih rapi dan informatif.
+
+Mengoneksikan Database di MySQL ke R
+```{r,connect, message=FALSE,warning=FALSE}
+dbConnect(odbc(),
+          Driver = "MySQL ODBC 8.0 Unicode Driver",
+          Server = "127.0.0.1",
+          UID = "root",
+          PWD = "rizal020",
+          Port = 3306)
+
+consak = dbConnect(odbc(),
+                 Driver = "MySQL ODBC 8.0 Unicode Driver",
+                 Server = "127.0.0.1",
+                 UID = "root",
+                 PWD = "rizal020",
+                 Port = 3306,
+                 database= "sakila")
+```
+<div class="insight-box">
+<h3> Insight Utama </h3>
+<p>
+Genre film dengan jumlah rental tinggi cenderung menghasilkan total revenue yang lebih besar pada database Sakila.
+</p>
+</div>
+### Analisis Total Rental dan Revenue pada Setiap Genre Film
+
+  Revenue pada analisis ini diperoleh dari total pembayaran transaksi rental film yang terdapat pada tabel payment. Perhitungan revenue dilakukan dengan menjumlahkan seluruh nilai pembayaran pada masing-masing genre film.
+
+$$
+Revenue = \sum_{i=1}^{n} amount_i
+$$
+Pengelompokkan genre film serta total rental dan revenue
+```{r,analisis 1}
+genre_analysis <- dbGetQuery(consak, "SELECT category.name AS genre, COUNT(rental.rental_id) AS total_rental,
+    SUM(payment.amount) AS total_revenue
+FROM category
+INNER JOIN film_category ON category.category_id = film_category.category_id
+INNER JOIN film ON film_category.film_id = film.film_id
+INNER JOIN inventory ON film.film_id = inventory.film_id
+INNER JOIN rental ON inventory.inventory_id = rental.inventory_id
+INNER JOIN payment ON rental.rental_id = payment.rental_id
+GROUP BY category.name
+ORDER BY total_revenue DESC")
+genre_analysis
+```
+visualisasi Genre dan revenue
+```{r visual 1,warning=FALSE, fig.width=10, fig.height=14}
+
+plot1 <- ggplot(genre_analysis,
+       aes(x = reorder(genre, total_rental),
+           y = total_rental,
+           fill = total_rental)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Total Rental Berdasarkan Genre Film",
+    subtitle = "Analisis Popularitas Genre",
+    x = "Genre Film",
+    y = "Jumlah Rental"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    plot.title = element_text(
+      size = 16,
+      face = "bold",
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      size = 11,
+      hjust = 0.5
+    ),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(
+      size = 12,
+      face = "bold"
+    )
+  )
+
+plot2 <- ggplot(genre_analysis,
+       aes(x = reorder(genre, total_revenue),
+           y = total_revenue,
+           fill = total_revenue)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Total Revenue Berdasarkan Genre Film",
+    subtitle = "Analisis Revenue Genre",
+    x = "Genre Film",
+    y = "Total Revenue"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    plot.title = element_text(
+      size = 16,
+      face = "bold",
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      size = 11,
+      hjust = 0.5
+    ),
+    
+    axis.text = element_text(size = 10),
+    axis.title = element_text(
+      size = 12,
+      face = "bold"
+    )
+  )
+
+plot1 / plot2
+```
+
+Visualisasi Hubungan antara Total rental dan total revenue
+```{r scatter1}
+ggplot(genre_analysis, aes(x = total_rental,
+           y = total_revenue,
+           label = genre)) +
+  geom_point(
+    size = 5,
+    color = "steelblue"
+  ) +
+  geom_text(
+    vjust = -0.7,
+    size = 4
+  ) +
+  labs(
+    title = "Hubungan Total Rental dan Total Revenue",
+    subtitle = "Analisis Genre Film pada Database Sakila",
+    x = "Total Rental",
+    y = "Total Revenue"
+  ) +
+  theme_minimal() +
+  theme(
+    
+    plot.title = element_text(
+      size = 18,
+      face = "bold",
+      hjust = 0.5
+    ),
+    
+    plot.subtitle = element_text(
+      size = 12,
+      hjust = 0.5
+    )
+  )
+```
+
+uji kolerasi :
+```{r}
+cor(
+genre_analysis$total_rental,
+genre_analysis$total_revenue)
+```
+
+  Berdasarkan hasil visualisasi total rental dan total revenue pada masing-masing genre film, terlihat bahwa setiap genre memiliki tingkat popularitas dan revenue yang berbeda-beda. Genre film dengan jumlah rental tertinggi cenderung juga memiliki total revenue yang tinggi. Hal ini menunjukkan bahwa peningkatan jumlah transaksi rental berkontribusi terhadap peningkatan revenue yang diperoleh perusahaan rental film.
+
+  Pada visualisasi total rental, genre Sports, Animation, dan Action termasuk ke dalam genre dengan jumlah rental tertinggi. Kondisi tersebut menunjukkan bahwa genre-genre tersebut memiliki tingkat popularitas yang tinggi di kalangan customer. Banyaknya transaksi rental pada genre tertentu dapat dipengaruhi oleh minat customer terhadap jenis film yang tersedia pada genre tersebut.
+
+  Sementara itu, pada visualisasi total revenue terlihat bahwa genre dengan jumlah rental tinggi juga menghasilkan revenue yang besar. Genre Sports menjadi salah satu genre dengan total revenue tertinggi dibandingkan genre lainnya. Hal ini menunjukkan bahwa popularitas genre film memiliki hubungan positif terhadap revenue yang dihasilkan.
+
+  Namun demikian, terdapat beberapa genre yang memiliki jumlah rental cukup tinggi tetapi revenue yang dihasilkan tidak berbeda terlalu jauh dengan genre lain. Hal ini menunjukkan bahwa total rental bukan satu-satunya faktor yang mempengaruhi revenue, melainkan dapat dipengaruhi juga oleh faktor lain seperti jumlah film dalam genre, harga rental film, maupun karakteristik customer.
+
+  Selain barplot, digunakan juga visualisasi scatter plot. Berdasarkan scatterplot yang dihasilkan, terlihat bahwa genre dengan jumlah rental yang tinggi cenderung memiliki total revenue yang tinggi pula. Pola titik pada scatterplot menunjukkan adanya hubungan positif antara kedua variabel tersebut.
+
+  Lalu juga dilakukan uji korelasi Pearson untuk mengetahui kekuatan hubungan antara total rental dan total revenue. Hasil korelasi menunjukkan nilai yang mendekati 1, sehingga dapat diinterpretasikan bahwa terdapat hubungan positif yang kuat antara total rental dan total revenue pada genre film
+
+  Secara keseluruhan, hasil analisis menunjukkan bahwa genre film populer cenderung menghasilkan revenue yang tinggi, sehingga terdapat hubungan positif antara total rental dan total revenue pada database Sakila.
+
+### Hubungan jumlah film dalam genre dan total rental
+
+menghitung total film dalam satu genre
+```{r analisis 2}
+jmlh_film <- dbGetQuery(consak,"SELECT category.name AS genre,
+    COUNT(DISTINCT film.film_id) AS total_film,
+    COUNT(rental.rental_id) AS total_rental
+FROM category
+INNER JOIN film_category ON category.category_id = film_category.category_id
+INNER JOIN film ON film_category.film_id = film.film_id
+INNER JOIN inventory ON film.film_id = inventory.film_id
+INNER JOIN rental ON inventory.inventory_id = rental.inventory_id
+GROUP BY category.name")
+jmlh_film
+
+```
+Visualisasi Hubungan jumlah film dalam genre dan total rental
+```{r visual 2}
+ggplot(jmlh_film,aes(x = total_film,y = total_rental,label = genre)) +
+  geom_point(
+    size = 5,
+    color = "darkgreen"
+  ) +
+  geom_text(
+    vjust = -0.7,
+    size = 4
+  ) +
+  labs(
+    title = "Hubungan Jumlah Film dan Total Rental",
+    subtitle = "Analisis Genre Film pada Database Sakila",
+    x = "Jumlah Film",
+    y = "Total Rental"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    plot.title = element_text(
+      size = 18,
+      face = "bold",
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      size = 12,
+      hjust = 0.5
+    ),
+    axis.title = element_text(
+      size = 13,
+      face = "bold"
+    ),
+    axis.text = element_text(
+      size = 11
+    )
+  )
+```
+Uji Kolerasi
+```{r}
+jmlh_film$total_film <-
+as.numeric(jmlh_film$total_film)
+
+jmlh_film$total_rental <-
+as.numeric(jmlh_film$total_rental)
+cor(
+  jmlh_film$total_film,
+  jmlh_film$total_rental)
+```
+  Berdasarkan hasil analisis yang telah dilakukan, terlihat bahwa jumlah film dalam suatu genre memiliki hubungan terhadap total rental genre tersebut. Genre yang memiliki jumlah film lebih banyak cenderung mempunyai total rental yang lebih tinggi dibandingkan genre dengan jumlah film yang lebih sedikit.
+
+  Hubungan tersebut dapat dilihat pada scatterplot yang menunjukkan pola hubungan positif antara jumlah film dan total rental. Semakin banyak film yang tersedia pada suatu genre, maka jumlah transaksi rental pada genre tersebut juga cenderung meningkat.
+
+  Hasil uji korelasi juga menunjukkan adanya hubungan positif antara jumlah film dan total rental. Hal ini menunjukkan bahwa banyaknya pilihan film dalam suatu genre dapat mempengaruhi tingkat popularitas genre berdasarkan jumlah rental.
+
+  Semakin banyak variasi film yang tersedia, customer memiliki lebih banyak pilihan untuk melakukan rental sehingga peluang terjadinya transaksi rental menjadi lebih besar. Namun demikian, jumlah film bukan menjadi satu-satunya faktor yang mempengaruhi total rental, karena masih terdapat faktor lain seperti popularitas genre, rating film, dan preferensi customer terhadap genre film.
+
+### Hubungan Durasi Film dan Total Rental
+Menghitung rata rata durasi film per genre
+```{r analisis 3}
+durasi_film <- dbGetQuery(consak,"SELECT category.name AS genre,
+    ROUND(AVG(film.length),2) AS rata_durasi,
+    COUNT(rental.rental_id) AS total_rental
+FROM category
+INNER JOIN film_category ON category.category_id = film_category.category_id
+INNER JOIN film ON film_category.film_id = film.film_id
+INNER JOIN inventory ON film.film_id = inventory.film_id
+INNER JOIN rental ON inventory.inventory_id = rental.inventory_id
+GROUP BY category.name
+ORDER by rata_durasi Desc")
+durasi_film
+```
+Visualisasi Hubungan rata rata durasi film dan total rental
+```{r viausalisai 3}
+ggplot(durasi_film, aes(x = rata_durasi, y = total_rental, label = genre)) +
+  geom_point(
+    size = 5,
+    color = "darkorange"
+  ) +
+  geom_text(
+    vjust = -0.7,
+    size = 4
+  ) +
+  labs(
+    title = "Hubungan Durasi Film dan Total Rental",
+    subtitle = "Analisis Genre Film pada Database Sakila",
+    x = "Rata-rata Durasi Film",
+    y = "Total Rental"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    plot.title = element_text(
+      size = 18,
+      face = "bold",
+      hjust = 0.5
+    ),
+    plot.subtitle = element_text(
+      size = 12,
+      hjust = 0.5
+    ),
+    axis.title = element_text(
+      size = 13,
+      face = "bold"
+    ),
+    axis.text = element_text(
+      size = 11
+    )
+  )
+```
+
+Uji Kolerasi
+```{r}
+
+durasi_film$rata_durasi <-
+as.numeric(durasi_film$rata_durasi)
+
+durasi_film$total_rental <-
+as.numeric(durasi_film$total_rental)
+
+cor(
+  durasi_film$rata_durasi,
+  durasi_film$total_rental
+)
+```
+
+  Berdasarkan hasil analisis yang telah dilakukan, terlihat bahwa rata-rata durasi film memiliki hubungan terhadap total rental pada masing-masing genre film. Namun, hubungan yang ditunjukkan tidak terlalu kuat dibandingkan analisis sebelumnya.
+
+  Scatterplot menunjukkan bahwa genre dengan durasi film yang lebih panjang tidak selalu memiliki total rental yang lebih tinggi. Beberapa genre dengan rata-rata durasi sedang justru memiliki jumlah rental yang lebih besar dibandingkan genre dengan durasi yang lebih panjang.
+
+  Hasil uji korelasi juga menunjukkan nilai korelasi yang relatif kecil sehingga hubungan antara rata-rata durasi film dan total rental cenderung lemah. Hal ini menunjukkan bahwa durasi film bukan menjadi faktor utama yang mempengaruhi tingkat rental genre film pada database Sakila.
+
+  Dengan demikian, dapat disimpulkan bahwa customer kemungkinan lebih mempertimbangkan faktor lain seperti popularitas genre, jumlah film dalam genre, serta preferensi terhadap jenis film tertentu dibandingkan durasi film itu sendiri.
+
+<div class="kesimpulan-box">
+<h2> Kesimpulan Utama Analisis </h2>
+<p>
+Popularitas genre film dan jumlah variasi film memiliki hubungan yang cukup kuat terhadap peningkatan total rental pada database Sakila.
+</p>
+</div>
+# Kesimpulan
+  Berdasarkan hasil analisis yang telah dilakukan pada database Sakila, dapat disimpulkan bahwa setiap genre film memiliki tingkat popularitas dan revenue yang berbeda-beda. Genre dengan jumlah total rental yang tinggi cenderung menghasilkan total revenue yang tinggi pula, sehingga terdapat hubungan positif antara total rental dan total revenue pada masing-masing genre film.
+
+  Hasil analisis juga menunjukkan bahwa jumlah film dalam suatu genre memiliki hubungan positif terhadap total rental. Semakin banyak variasi film yang tersedia pada suatu genre, maka peluang customer untuk melakukan rental juga semakin besar. Hal tersebut menunjukkan bahwa jumlah film dapat menjadi salah satu faktor yang mempengaruhi tingkat popularitas genre film.
+
+  Sementara itu, analisis hubungan antara rata-rata durasi film dan total rental menunjukkan hubungan yang relatif lemah. Hal ini menunjukkan bahwa durasi film bukan menjadi faktor utama yang mempengaruhi tingkat rental genre film pada database Sakila.
+
+  Secara keseluruhan, faktor yang paling berhubungan dengan total rental genre film adalah total revenue dan jumlah film dalam genre, sedangkan rata-rata durasi film menunjukkan pengaruh yang lebih kecil terhadap total rental. Analisis ini menunjukkan bahwa popularitas genre dan banyaknya pilihan film menjadi faktor penting dalam meningkatkan transaksi rental pada database Sakila.
