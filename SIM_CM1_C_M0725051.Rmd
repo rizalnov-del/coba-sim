@@ -1,12 +1,11 @@
 ---
 title: "ANALISIS GENRE FILM DATABASE SAKILA"
 author:
-  - " Nama: Rizal Novawan"
-  - "NIM: M0725051"
-  - "Kelas: C"
-  - "Mata Kuliah: Sistem Informasi Manajemen"
+- ' Nama: Rizal Novawan'
+- 'NIM: M0725051'
+- 'Kelas: C'
+- 'Mata Kuliah: Sistem Informasi Manajemen'
 date: "`r Sys.Date()`"
-
 output:
   html_document:
     toc: true
@@ -16,6 +15,8 @@ output:
     number_sections: true
     theme: spacelab
     highlight: tango
+  pdf_document:
+    toc: true
 ---
 <style>
 
@@ -345,11 +346,30 @@ ggplot(genre_analysis, aes(x = total_rental,
   )
 ```
 
+Hipotesis Kolerasi
+
+$$
+H_0 : \rho = 0
+\quad \text{(Tidak terdapat hubungan antara total rental dan total revenue)}
+$$
+
+$$
+H_1 : \rho \neq 0
+\quad \text{(Terdapat hubungan antara total rental dan total revenue)}
+$$
 uji kolerasi :
 ```{r}
-cor(
+hasil1 <- cor.test(
 genre_analysis$total_rental,
 genre_analysis$total_revenue)
+hasil1$estimate
+hasil1$p.value
+
+if(hasil1$p.value < 0.05){
+  print("H0 ditolak")
+} else {
+  print("H0 gagal ditolak")
+}
 ```
 
   Berdasarkan hasil visualisasi total rental dan total revenue pada masing-masing genre film, terlihat bahwa setiap genre memiliki tingkat popularitas dan revenue yang berbeda-beda. Genre film dengan jumlah rental tertinggi cenderung juga memiliki total revenue yang tinggi. Hal ini menunjukkan bahwa peningkatan jumlah transaksi rental berkontribusi terhadap peningkatan revenue yang diperoleh perusahaan rental film.
@@ -362,7 +382,12 @@ genre_analysis$total_revenue)
 
   Selain barplot, digunakan juga visualisasi scatter plot. Berdasarkan scatterplot yang dihasilkan, terlihat bahwa genre dengan jumlah rental yang tinggi cenderung memiliki total revenue yang tinggi pula. Pola titik pada scatterplot menunjukkan adanya hubungan positif antara kedua variabel tersebut.
 
-  Lalu juga dilakukan uji korelasi Pearson untuk mengetahui kekuatan hubungan antara total rental dan total revenue. Hasil korelasi menunjukkan nilai yang mendekati 1, sehingga dapat diinterpretasikan bahwa terdapat hubungan positif yang kuat antara total rental dan total revenue pada genre film
+Keputusan Uji Hipotesis
+
+Berdasarkan hasil uji korelasi Pearson diperoleh nilai p-value lebih kecil dari 0,05 sehingga H0 ditolak dan H1 diterima
+
+  Selain itu, nilai korelasi yang mendekati 1 menunjukkan bahwa hubungan antara kedua variabel bersifat positif dan cukup kuat. Dengan demikian, peningkatan jumlah rental cenderung diikuti dengan peningkatan total revenue.
+
 
   Secara keseluruhan, hasil analisis menunjukkan bahwa genre film populer cenderung menghasilkan revenue yang tinggi, sehingga terdapat hubungan positif antara total rental dan total revenue pada database Sakila.
 
@@ -420,6 +445,16 @@ ggplot(jmlh_film,aes(x = total_film,y = total_rental,label = genre)) +
     )
   )
 ```
+
+$$
+H_0 : \rho = 0
+\quad \text{(Tidak terdapat hubungan antara jumlah film dan total rental)}
+$$
+
+$$
+H_1 : \rho \neq 0
+\quad \text{(Terdapat hubungan antara jumlah film dan total rental)}
+$$
 Uji Kolerasi
 ```{r}
 jmlh_film$total_film <-
@@ -427,15 +462,29 @@ as.numeric(jmlh_film$total_film)
 
 jmlh_film$total_rental <-
 as.numeric(jmlh_film$total_rental)
-cor(
+
+hasil2 <- cor.test(
   jmlh_film$total_film,
-  jmlh_film$total_rental)
+  jmlh_film$total_rental
+)
+hasil2$estimate
+hasil2$p.value
+
+if(hasil2$p.value < 0.05){
+  print("H0 ditolak ")
+} else {
+  print("H0 gagal ditolak")
+}
 ```
   Berdasarkan hasil analisis yang telah dilakukan, terlihat bahwa jumlah film dalam suatu genre memiliki hubungan terhadap total rental genre tersebut. Genre yang memiliki jumlah film lebih banyak cenderung mempunyai total rental yang lebih tinggi dibandingkan genre dengan jumlah film yang lebih sedikit.
 
   Hubungan tersebut dapat dilihat pada scatterplot yang menunjukkan pola hubungan positif antara jumlah film dan total rental. Semakin banyak film yang tersedia pada suatu genre, maka jumlah transaksi rental pada genre tersebut juga cenderung meningkat.
 
-  Hasil uji korelasi juga menunjukkan adanya hubungan positif antara jumlah film dan total rental. Hal ini menunjukkan bahwa banyaknya pilihan film dalam suatu genre dapat mempengaruhi tingkat popularitas genre berdasarkan jumlah rental.
+Keputusan Uji Hipotesis
+
+Berdasarkan hasil uji korelasi Pearson diperoleh nilai p-value lebih kecil dari 0,05 sehingga H0 ditolak dan H1 diterima.
+
+Selain itu, nilai korelasi yang mendekati 1 menunjukkan bahwa hubungan antara kedua variabel bersifat positif dan cukup kuat. Dengan demikian, semakin banyak jumlah film dalam suatu genre maka total rental juga cenderung meningkat.
 
   Semakin banyak variasi film yang tersedia, customer memiliki lebih banyak pilihan untuk melakukan rental sehingga peluang terjadinya transaksi rental menjadi lebih besar. Namun demikian, jumlah film bukan menjadi satu-satunya faktor yang mempengaruhi total rental, karena masih terdapat faktor lain seperti popularitas genre, rating film, dan preferensi customer terhadap genre film.
 
@@ -502,17 +551,30 @@ as.numeric(durasi_film$rata_durasi)
 durasi_film$total_rental <-
 as.numeric(durasi_film$total_rental)
 
-cor(
+hasil3 <- cor.test(
   durasi_film$rata_durasi,
   durasi_film$total_rental
 )
+
+hasil3$estimate
+hasil3$p.value
+
+if(hasil3$p.value < 0.05){
+  print("H0 ditolak dan H1 diterima")
+} else {
+  print("H0 gagal ditolak")
+}
 ```
 
   Berdasarkan hasil analisis yang telah dilakukan, terlihat bahwa rata-rata durasi film memiliki hubungan terhadap total rental pada masing-masing genre film. Namun, hubungan yang ditunjukkan tidak terlalu kuat dibandingkan analisis sebelumnya.
 
   Scatterplot menunjukkan bahwa genre dengan durasi film yang lebih panjang tidak selalu memiliki total rental yang lebih tinggi. Beberapa genre dengan rata-rata durasi sedang justru memiliki jumlah rental yang lebih besar dibandingkan genre dengan durasi yang lebih panjang.
 
-  Hasil uji korelasi juga menunjukkan nilai korelasi yang relatif kecil sehingga hubungan antara rata-rata durasi film dan total rental cenderung lemah. Hal ini menunjukkan bahwa durasi film bukan menjadi faktor utama yang mempengaruhi tingkat rental genre film pada database Sakila.
+Keputusan Uji Hipotesis
+
+Berdasarkan hasil uji korelasi Pearson diperoleh nilai p-value lebih besar dari 0,05 sehingga H0 gagal ditolak.
+
+Selain itu, nilai korelasi yang relatif kecil menunjukkan bahwa hubungan antara kedua variabel cenderung lemah. Dengan demikian, rata-rata durasi film tidak terlalu mempengaruhi peningkatan total rental pada genre film database Sakila.
 
   Dengan demikian, dapat disimpulkan bahwa customer kemungkinan lebih mempertimbangkan faktor lain seperti popularitas genre, jumlah film dalam genre, serta preferensi terhadap jenis film tertentu dibandingkan durasi film itu sendiri.
 
